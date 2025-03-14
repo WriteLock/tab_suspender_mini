@@ -124,26 +124,13 @@ function suspendTab(tabId) {
 function resetTimer(tabId) {
     console.log("Resetting timer for tab:", tabId);
     clearTimeout(suspensionTimers[tabId]);
+    delete suspensionTimers[tabId];
     browser.tabs.get(tabId).then(tab => {
         if (!tab.url) {
             console.log("Tab has no URL, not setting timer:", tabId);
             return;
         }
-
-        // Check if the tab is already suspended
-        if (tab.url.startsWith(browser.runtime.getURL("suspended.html"))) {
-            // Extract the original URL from the suspended page's parameters
-            const suspendedUrl = new URL(tab.url);
-            const originalUrl = suspendedUrl.searchParams.get('url');
-            if (originalUrl) {
-                console.log("Tab is suspended, checking original URL:", originalUrl);
-                checkExceptionAndSetTimer(tabId, originalUrl);
-            } else {
-                console.log("Unable to get original URL for suspended tab:", tabId);
-            }
-        } else {
-            checkExceptionAndSetTimer(tabId, tab.url);
-        }
+        console.log("Tab is active, not setting suspension timer:", tabId);
     }).catch(error => {
         console.error("Error getting tab in resetTimer:", tabId, error);
     });
@@ -201,8 +188,18 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // Message listener
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("Received message:", message);
-    if (message.action === "suspendTab") {
+    console.log("Received message:", message, "from tab:", sender.tab ? sender.tab.id : "unknown");
+    if (message.action === "reportActivity") {
+        if (sender.tab && sender.tab.id) {
+            console.log(`Activity reported for tab ${sender.tab.id}: ${message.status}`);
+            if (message.status === "active") {
+                resetTimer(sender.tab.id);
+            } else if (message.status === "inactive") {
+                console.log(`Setting suspension timer for inactive tab ${sender.tab.id}`);
+                checkExceptionAndSetTimer(sender.tab.id, sender.tab.url);
+            }
+        }
+    } else if (message.action === "suspendTab") {
         console.log("Suspending current tab");
         browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
             if (tabs.length > 0) {
@@ -238,45 +235,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
     }
 });
-
-// Interval for checking tabs
-setInterval(() => {
-    browser.tabs.query({}).then(tabs => {
-        console.log("Checking tabs for suspension, total tabs:", tabs.length);
-        tabs.forEach(tab => {
-            console.log(`Tab ${tab.id}: active=${tab.active}, audible=${tab.audible}, url=${tab.url}`);
-
-            // If the tab is active or playing audio, clear its timer and skip
-            if (tab.active || tab.audible) {
-                clearTimeout(suspensionTimers[tab.id]);
-                delete suspensionTimers[tab.id];
-                console.log("Tab is active or playing audio, skipping:", tab.id);
-                return;
-            }
-
-            isExceptionDomain(tab.url).then(isException => {
-                if (!tab.active &&
-                    !tab.audible && // Add check for audio playing
-                    !tab.url.startsWith(browser.runtime.getURL("")) &&
-                    !tab.url.startsWith("about:") &&
-                    !tab.url.startsWith("chrome:") &&
-                    !tab.url.startsWith("moz-extension:") &&
-                    tab.url !== 'about:blank' &&
-                    tab.url !== 'about:newtab' &&
-                    !isException) {
-                    if (!suspensionTimers[tab.id]) {
-                        console.log("Setting new timer for tab:", tab.id);
-                        resetTimer(tab.id);
-                    } else {
-                        console.log("Timer already exists for tab:", tab.id);
-                    }
-                } else {
-                    console.log("Tab not eligible for suspension:", tab.id);
-                }
-            });
-        });
-    });
-}, 60000); // Check every minute
 
 // Initialize icon
 updateIcon(false);  // Set to inactive by default

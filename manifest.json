@@ -1,35 +1,50 @@
 {
-    "manifest_version": 2,
-    "name": "Tab Suspender Mini",
-    "version": "1.1",
-    "description": "Suspends inactive tabs after 60 seconds",
-    "permissions": [
-        "tabs",
-        "<all_urls>",
-        "activeTab",
-        "storage"
+  "manifest_version": 2,
+  "name": "Tab Suspender Mini",
+  "version": "1.2",
+  "description": "Suspends inactive tabs after 60 seconds",
+  "permissions": [
+    "tabs",
+    "<all_urls>",
+    "storage"
+  ],
+  "background": {
+    "scripts": [
+      "src/background/background.js"
     ],
-    "background": {
-        "scripts": [
-            "src/background/background.js"
-        ],
-        "persistent": true
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
     },
-    "browser_action": {
-        "default_popup": "src/popup/popup.html",
-        "default_icon": {
-            "16": "icons/icon16.png",
-            "48": "icons/icon48.png"
-        },
-        "default_title": "Tab Suspender Mini"
-    },
-    "web_accessible_resources": [
-        "src/suspended/suspended.html",
-        "src/suspended/suspended.js"
-    ],
-    "icons": {
-        "16": "icons/icon16.png",
-        "48": "icons/icon48.png",
-        "128": "icons/icon128.png"
+    "default_title": "Tab Suspender Mini"
+  },
+  "web_accessible_resources": [
+    "src/suspended/suspended.html",
+    "src/suspended/suspended.js"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/content/activity.js"
+      ],
+      "run_at": "document_idle"
     }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{b555ee4e-edbd-48f0-94d3-4107b04e7282}"
+    }
+  }
 }
