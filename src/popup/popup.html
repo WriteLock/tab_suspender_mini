@@ -32,6 +32,10 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
+        #tsm-container>*:last-child {
+            margin-bottom: 0;
+        }
+
         h2 {
             margin-top: 0;
             margin-bottom: 16px;
@@ -116,52 +120,54 @@
 
         #suspendCurrentTab {
             width: 100%;
-            margin-top: 16px;
+            margin: 0 0 16px 0;
         }
     </style>
 </head>
 
 <body>
-    <div class="card">
-        <h2>Suspension Timer</h2>
-        <div class="input-group">
-            <label for="suspensionTimer">Discard inactive tabs after</label>
-            <div class="timer-input">
-                <input type="number" id="suspensionTimer" min="1" max="60" value="1">
+    <div id="tsm-container">
+        <button id="suspendCurrentTab">Suspend Current Tab</button>
+
+        <div class="card">
+            <h2>Suspension Timer</h2>
+            <div class="input-group">
+                <label for="suspensionTimer">Discard inactive tabs after</label>
+                <div class="timer-input">
+                    <input type="number" id="suspensionTimer" min="1" max="60" value="1">
+                    <span>minutes</span>
+                </div>
+            </div>
+            <button id="saveTimer">Save</button>
+        </div>
+
+        <!-- <div class="setting-group">
+            <h2>Suspension Timer</h2>
+            <div class="timer-setting">
+                <label for="suspensionTimer">Discard inactive tabs after</label>
+                <input type="number" id="suspensionTimer" min="1" step="1">
                 <span>minutes</span>
             </div>
-        </div>
-        <button id="saveTimer">Save</button>
-    </div>
+            <button id="saveTimer">Save</button>
+        </div> -->
 
-    <!-- <div class="setting-group">
-        <h2>Suspension Timer</h2>
-        <div class="timer-setting">
-            <label for="suspensionTimer">Discard inactive tabs after</label>
-            <input type="number" id="suspensionTimer" min="1" step="1">
-            <span>minutes</span>
+        <div class="card">
+            <h2>Domain Exceptions</h2>
+            <div class="input-group">
+                <input type="text" id="domainInput" placeholder="Enter domain (e.g., example.com)">
+                <button id="addDomain">Add Exception</button>
+            </div>
+            <ul id="exceptionList"></ul>
         </div>
-        <button id="saveTimer">Save</button>
-    </div> -->
 
-    <div class="card">
-        <h2>Domain Exceptions</h2>
-        <div class="input-group">
+        <!-- <div class="setting-group">
+            <h2>Domain Exceptions</h2>
             <input type="text" id="domainInput" placeholder="Enter domain (e.g., example.com)">
             <button id="addDomain">Add Exception</button>
-        </div>
-        <ul id="exceptionList"></ul>
+            <ul id="exceptionList"></ul>
+        </div> -->
     </div>
 
-    <!-- <div class="setting-group">
-        <h2>Domain Exceptions</h2>
-        <input type="text" id="domainInput" placeholder="Enter domain (e.g., example.com)">
-        <button id="addDomain">Add Exception</button>
-        <ul id="exceptionList"></ul>
-    </div> -->
-
-
-    <button id="suspendCurrentTab">Suspend Current Tab</button>
     <script src="popup.js"></script>
 </body>
 
