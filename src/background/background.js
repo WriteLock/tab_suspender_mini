@@ -38,7 +38,8 @@ function isExceptionDomain(url) {
 }
 
 function updateIcon(active) {
-    const path = active ? "icons/icon_active.png" : "icons/icon_inactive.png";
+    // TODO: Create active and inactive icons, replace the respective paths here
+    const path = active ? "icons/icon_128.png" : "icons/icon_128.png";
     browser.browserAction.setIcon({ path });
 }
 
